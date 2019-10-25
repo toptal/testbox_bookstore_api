@@ -1,0 +1,48 @@
+current directory: /home/bwilczek/work/testbox_bookstore_api/vendor/bundle/ruby/2.5.0/gems/nio4r-2.5.2/ext/nio4r
+/usr/bin/ruby2.5 -r ./siteconf20191025-29289-iq4qm1.rb extconf.rb
+checking for unistd.h... yes
+checking for linux/aio_abi.h... yes
+checking for sys/select.h... yes
+checking for port_event_t in poll.h... no
+checking for sys/epoll.h... yes
+checking for sys/event.h... no
+checking for port_event_t in port.h... no
+checking for sys/resource.h... yes
+creating Makefile
+
+current directory: /home/bwilczek/work/testbox_bookstore_api/vendor/bundle/ruby/2.5.0/gems/nio4r-2.5.2/ext/nio4r
+make "DESTDIR=" clean
+
+current directory: /home/bwilczek/work/testbox_bookstore_api/vendor/bundle/ruby/2.5.0/gems/nio4r-2.5.2/ext/nio4r
+make "DESTDIR="
+compiling bytebuffer.c
+compiling monitor.c
+compiling nio4r_ext.c
+In file included from nio4r_ext.c:7:0:
+../libev/ev.c:1867:31: warning: ‘ev_default_loop_ptr’ initialized and declared ‘extern’
+   EV_API_DECL struct ev_loop *ev_default_loop_ptr = 0; /* needs to be initialised to make it a definition despite extern */
+                               ^~~~~~~~~~~~~~~~~~~
+../libev/ev.c: In function ‘evpipe_write’:
+../libev/ev.c:2508:11: warning: ignoring return value of ‘write’, declared with attribute warn_unused_result [-Wunused-result]
+           write (evpipe [1], &counter, sizeof (uint64_t));
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../libev/ev.c:2520:11: warning: ignoring return value of ‘write’, declared with attribute warn_unused_result [-Wunused-result]
+           write (evpipe [1], &(evpipe [1]), 1);
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../libev/ev.c: In function ‘pipecb’:
+../libev/ev.c:2541:11: warning: ignoring return value of ‘read’, declared with attribute warn_unused_result [-Wunused-result]
+           read (evpipe [1], &counter, sizeof (uint64_t));
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../libev/ev.c:2555:11: warning: ignoring return value of ‘read’, declared with attribute warn_unused_result [-Wunused-result]
+           read (evpipe [0], &dummy, sizeof (dummy));
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compiling selector.c
+selector.c: In function ‘NIO_Selector_wakeup’:
+selector.c:484:5: warning: ignoring return value of ‘write’, declared with attribute warn_unused_result [-Wunused-result]
+     write(selector->wakeup_writer, "\0", 1);
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+linking shared-object nio4r_ext.so
+
+current directory: /home/bwilczek/work/testbox_bookstore_api/vendor/bundle/ruby/2.5.0/gems/nio4r-2.5.2/ext/nio4r
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 nio4r_ext.so ./.gem.20191025-29289-1uvaifr

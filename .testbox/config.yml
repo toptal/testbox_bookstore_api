@@ -1,0 +1,6 @@
+docker:
+  image: ruby:2.5
+  workdir: /platform
+scripts:
+  configure: /platform/.testbox/configure.sh
+  run: /platform/.testbox/run.sh
