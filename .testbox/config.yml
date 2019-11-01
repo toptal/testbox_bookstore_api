@@ -1,6 +1,8 @@
 docker:
-  image: ruby:2.5
+  image: sandbox_bookstore_api
   workdir: /platform
+  ports:
+  - "3000:3000"
 scripts:
-  configure: /platform/.testbox/configure.sh
   run: /platform/.testbox/run.sh
+  rails: /platform/bin rails $@
