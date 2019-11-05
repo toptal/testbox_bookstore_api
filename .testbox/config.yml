@@ -1,5 +1,5 @@
 docker:
-  image: sandbox_bookstore_api
+  build: true
   workdir: /app
   ports:
   - "3000:3000"
@@ -7,3 +7,4 @@ scripts:
   ls: ls
   rails: /app/bin rails
   date: date
+  after_checkout: date
