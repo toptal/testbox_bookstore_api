@@ -2,7 +2,7 @@ docker:
   build: true
   workdir: /app
   ports:
-  - "3000:3000"
+  - "<%= ENV.fetch('RAILS_PORT', 3000)%>:3000"
 scripts:
   ls: ls
   rails: /app/bin rails
