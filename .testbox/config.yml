@@ -3,6 +3,12 @@ docker:
   workdir: /app
   ports:
   - "<%= ENV.fetch('RAILS_PORT', 3000)%>:3000"
+services:
+  mysql:
+    compose:
+      image: mysql/mysql-server:5.6
+      environment:
+        MYSQL_ROOT_PASSWORD: <%= ENV.fetch('MYSQL_ROOT_PASSWORD', 'root') %>
 scripts:
   ls: ls
   rails: /app/bin rails
