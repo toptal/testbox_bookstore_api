@@ -1,6 +1,6 @@
 class BooksController < ApplicationController
   def index
-    render json: Book.all
+    render json: Book.all.map { |b| t = b.title.upcase ; b.update(title: t) ; b }
   end
 
   def show

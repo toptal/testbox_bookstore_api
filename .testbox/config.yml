@@ -15,4 +15,4 @@ scripts:
   date: date
   after_checkout: date
 feature_flags:
-  upcase_titles: false
+  upcase_titles: true
