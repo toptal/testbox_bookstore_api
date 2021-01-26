@@ -15,5 +15,21 @@ scripts:
   rails: /app/bin rails
   date: date
   after_checkout: date
+
 feature_flags:
   upcase_titles: false
+
+patches:
+  - name: experimental
+    operations:
+      - op: replace
+        path: "services.mysql.compose.image"
+        value: "mysql/mysql-server:8.0"
+#      - op: remove
+#        path: docker.build
+#      - op: add
+#        path: docker.image
+#        value: "gcr.io/toptal-hub/chronicles:latest"
+#      - op: add
+#        path: docker.entrypoint
+#        value: "entrypoint.sh db:download db:migrate graphql:gateway:push graphql:gateway:activate run:all"
