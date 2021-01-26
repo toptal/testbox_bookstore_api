@@ -3,12 +3,14 @@ docker:
   workdir: /app
   ports:
   - "<%= ENV.fetch('RAILS_PORT', 3000)%>:3000"
+
 services:
   mysql:
     compose:
       image: mysql/mysql-server:5.6
       environment:
         MYSQL_ROOT_PASSWORD: <%= ENV.fetch('MYSQL_ROOT_PASSWORD', 'root') %>
+
 scripts:
   start: /app/.testbox/run.sh
   ls: ls
@@ -28,8 +30,5 @@ patches:
 #      - op: remove
 #        path: docker.build
 #      - op: add
-#        path: docker.image
-#        value: "gcr.io/toptal-hub/chronicles:latest"
-#      - op: add
-#        path: docker.entrypoint
-#        value: "entrypoint.sh db:download db:migrate graphql:gateway:push graphql:gateway:activate run:all"
+#        path: docker.ports
+#        value: "4000:4000"
