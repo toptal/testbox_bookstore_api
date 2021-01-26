@@ -3,12 +3,14 @@ docker:
   workdir: /app
   ports:
   - "<%= ENV.fetch('RAILS_PORT', 3000)%>:3000"
+
 services:
   mysql:
     compose:
       image: mysql/mysql-server:5.6
       environment:
         MYSQL_ROOT_PASSWORD: <%= ENV.fetch('MYSQL_ROOT_PASSWORD', 'root') %>
+
 scripts:
   start: /app/.testbox/run.sh
   ls: ls
@@ -17,3 +19,18 @@ scripts:
   after_checkout: date
 feature_flags:
   upcase_titles: false
+<<<<<<< Updated upstream
+=======
+
+patches:
+  - name: experimental
+    operations:
+      - op: replace
+        path: "services.mysql.compose.image"
+        value: "mysql/mysql-server:8.0"
+#      - op: remove
+#        path: docker.build
+#      - op: add
+#        path: docker.ports
+#        value: "4000:4000"
+>>>>>>> Stashed changes
