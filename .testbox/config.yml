@@ -17,10 +17,9 @@ scripts:
   rails: /app/bin rails
   date: date
   after_checkout: date
+
 feature_flags:
   upcase_titles: false
-<<<<<<< Updated upstream
-=======
 
 patches:
   - name: experimental
@@ -33,4 +32,3 @@ patches:
 #      - op: add
 #        path: docker.ports
 #        value: "4000:4000"
->>>>>>> Stashed changes
