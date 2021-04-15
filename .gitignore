@@ -26,4 +26,4 @@
 /config/master.key
 
 /.testbox/Dockerfile
-
+/.testbox/entrypoint.sh
