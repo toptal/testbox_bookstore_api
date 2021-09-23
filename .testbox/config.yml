@@ -14,7 +14,7 @@ services:
 scripts:
   start: /app/.testbox/run.sh
   ls: ls
-  rails: /app/bin rails
+  rails: /app/bin/rails
   date: date
   after_checkout: date
 
