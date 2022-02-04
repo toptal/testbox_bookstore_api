@@ -1,0 +1,209 @@
+name: Features
+on:
+  workflow_call:
+    inputs:
+      platform_branch:
+        description: 'Platform branch'
+        type: string
+        required: false
+        default: 'master'
+      talent_portal_branch:
+        description: 'Talent Portal branch'
+        type: string
+        required: false
+        default: 'master'
+      billing_branch:
+        description: 'Billing branch'
+        type: string
+        required: false
+        default: 'master'
+      testbox_profile:
+        description: 'Profile of testbox.yml'
+        type: string
+        required: true
+      cucumber_profile:
+        description: 'Profile of config/cucumber.yml'
+        type: string
+        required: true
+      worker_count:
+        description: 'Number of parallel workers'
+        type: number
+        required: true
+      job_name_prefix:
+        description: 'Prefix of job name'
+        type: string
+        required: true
+      kubernetes_namespaces_basename:
+        description: 'Base name of Kubernetes namespaces'
+        type: string
+        required: true
+    secrets:
+      TOPTAL_BUILD_BOT_SSH_KEY:
+        required: true
+      TOPTAL_DEVBOT_TOKEN:
+        required: true
+      GCR_TESTBOX_ACCOUNT_KEY:
+        required: true
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM:
+        required: true
+      BUNDLE_GITHUB__COM:
+        required: true
+      NPM_TOKEN_READ_ONLY:
+        required: true
+
+  workflow_dispatch:
+    inputs:
+      platform_branch:
+        description: 'Platform branch'
+        required: false
+        default: 'master'
+      talent_portal_branch:
+        description: 'Talent Portal branch'
+        required: false
+        default: 'master'
+      billing_branch:
+        description: 'Billing branch'
+        type: string
+        required: false
+        default: 'master'
+      testbox_profile:
+        description: 'Profile of testbox.yml'
+        type: string
+        required: true
+      cucumber_profile:
+        description: 'Profile of config/cucumber.yml'
+        type: string
+        required: true
+      worker_count:
+        description: 'Number of parallel workers'
+        type: number
+        required: true
+      job_name_prefix:
+        description: 'Prefix of job name'
+        type: string
+        required: true
+      kubernetes_namespaces_basename:
+        description: 'Base name of Kubernetes namespaces'
+        type: string
+        required: true
+
+env:
+  ANVIL_URL: https://anvil.toptal.net
+  BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+  BUNDLE_GITHUB__COM: ${{ secrets.BUNDLE_GITHUB__COM }}
+  BUNDLE_PATH: vendor/bundle
+  BUNDLE_WITH: testbox
+  BUNDLE_WITHOUT: default:development:test:cucumber
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN_READ_ONLY }}
+  RESUME_BUILD_WITH_ANVIL: false
+  TESTBOX_BUILDER: buildctl
+  TESTBOX_BUILDKIT_ADDRESS: tcp://localhost:1122
+  TESTBOX_KUBERNETES_NODE_SELECTORS: gke.testbox-test=true
+  TESTBOX_KUBERNETES_TOLERATIONS: jenkins.testbox=true:NoSchedule
+  TESTBOX_SCHEDULER: kubernetes
+  BUILD_NUMBER: ${{ github.run_number }}
+  KUBERNETES_NAMESPACE_BASE: "github-features-${{ inputs.kubernetes_namespaces_basename || github.event.inputs.kubernetes_namespaces_basename }}-${{ github.run_number }}"
+  JOB_NAME: "${{ inputs.job_name_prefix || github.event.inputs.job_name_prefix}}_testbox_gha"
+
+jobs:
+  features:
+    name: Run features
+    runs-on: [self-hosted, org/toptal, os/linux, arch/x64, size/standard]
+    steps:
+      - name: Display inputs
+        uses:  actions/github-script@v5
+        with:
+          script: |
+            console.log(context.payload.inputs)
+      - name: Set custom ENV
+        run: |
+          echo "TESTBOX_BRANCH_PLATFORM=${{ inputs.platform_branch || github.event.inputs.platform_branch }}" >> $GITHUB_ENV
+          echo "TESTBOX_BRANCH_TALENT_PORTAL=${{ inputs.talent_portal_branch || github.event.inputs.talent_portal_branch }}" >> $GITHUB_ENV
+          echo "TESTBOX_BRANCH_BILLING=${{ inputs.billing_branch || github.event.inputs.billing_branch }}" >> $GITHUB_ENV
+          echo "TESTBOX_PROFILE=${{ inputs.testbox_profile || github.event.inputs.testbox_profile }}" >> $GITHUB_ENV
+          echo "CUCUMBER_PROFILE=${{ inputs.cucumber_profile || github.event.inputs.cucumber_profile }}" >> $GITHUB_ENV
+          echo "WORKER_COUNT=${{ inputs.worker_count || github.event.inputs.worker_count }}" >> $GITHUB_ENV
+      - uses: toptal/ssh-agent@v0.4.1
+        with:
+          ssh-private-key: ${{ secrets.TOPTAL_BUILD_BOT_SSH_KEY }}
+      - name: Checkout Platform
+        uses: actions/checkout@v2
+        with:
+          repository: toptal/platform
+          ref: ${{ env.TESTBOX_BRANCH_PLATFORM }}
+          token: ${{ secrets.TOPTAL_DEVBOT_TOKEN }}
+      - uses: google-github-actions/setup-gcloud@v0.2.1
+        with:
+          export_default_credentials: true
+          project_id: toptal-ci
+          service_account_key: ${{ secrets.GCR_TESTBOX_ACCOUNT_KEY }}
+      - uses: google-github-actions/get-gke-credentials@v0.3.0
+        with:
+          cluster_name: ci
+          location: us-central1-b
+          project_id: compute-engine-1069
+      - name: Set up Buildkit
+        run: |
+          kubectl --namespace buildkitd-ci port-forward service/buildkitd-ci 1122:1234 &
+      - uses: google-github-actions/get-gke-credentials@v0.3.0
+        with:
+          cluster_name: testbox
+          location: us-east1-b
+          project_id: toptal-ci
+      - name: Set up Docker login
+        run: gcloud --quiet auth configure-docker
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - name: Initialize stack
+        id: init
+        run: bundle exec testbox --profile ${{ env.TESTBOX_PROFILE }} init --shallow
+      - name: Build images
+        id: images
+        run: |
+          export TESTBOX_SECRET_GCLOUD=$GOOGLE_APPLICATION_CREDENTIALS
+          bundle exec testbox --profile ${{ env.TESTBOX_PROFILE }} apps |
+            parallel --ctagstring "Build {}:" --halt now,fail=1 --joblog /tmp/testbox-build --jobs 0 \
+            bundle exec testbox --profile ${{ env.TESTBOX_PROFILE }} build {}
+          cat /tmp/testbox-build
+
+      - name: Start leader
+        id: leader
+        run: bundle exec testbox --profile ${{ env.TESTBOX_PROFILE }} up &
+        env:
+          CUCUMBER_DISTRIB_MODE: leader
+          TESTBOX_KUBERNETES_NAMESPACE: ${{ env.KUBERNETES_NAMESPACE_BASE }}-leader
+          TESTBOX_PLATFORM_PATCHES: cucumber-distrib-leader
+          TESTBOX_PROFILE: cucumber_distrib_leader
+
+      - name: Start workers
+        id: workers
+        run: |
+          seq $WORKER_COUNT |
+            parallel --ctagstring "Worker {#}/$WORKER_COUNT:" --joblog /tmp/testbox-workers-up --jobs 0 --max-replace-args 0 \
+            TESTBOX_KUBERNETES_NAMESPACE=${{ env.KUBERNETES_NAMESPACE_BASE }}-worker-{#} \
+            bundle exec testbox --profile ${{ env.TESTBOX_PROFILE }} up
+          cat /tmp/testbox-workers-up
+        env:
+          CUCUMBER_DISTRIB_MODE: worker
+          CUCUMBER_DISTRIB_URL: platform.${{ env.KUBERNETES_NAMESPACE_BASE }}-leader.svc.cluster.local
+          TESTBOX_KUBERNETES_NODE_SELECTORS: ${{ env.TESTBOX_KUBERNETES_NODE_SELECTORS }}, cloud.google.com/gke-preemptible=true
+          TESTBOX_KUBERNETES_TOLERATIONS: ${{ env.TESTBOX_KUBERNETES_TOLERATIONS }}, cloud.google.com/gke-preemptible=true:NoSchedule
+          TESTBOX_PLATFORM_PATCHES: cucumber-distrib-worker
+        continue-on-error: true
+
+      - name: Run tests
+        id: tests
+        run: |
+          .testbox/leader_logs_wrapper.sh
+        env:
+          TESTBOX_KUBERNETES_NAMESPACE: ${{ env.KUBERNETES_NAMESPACE_BASE }}-leader
+          TESTBOX_PLATFORM_PATCHES: cucumber-distrib-leader
+
+      - name: Stop leader and workers
+        id: prune
+        run: |
+          kubectl get namespace -o=name |
+            grep ${{ env.KUBERNETES_NAMESPACE_BASE }} |
+            xargs kubectl delete --ignore-not-found --wait=false
+        if: ${{ always() }}
