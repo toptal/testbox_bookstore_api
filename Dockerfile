@@ -13,4 +13,7 @@ CMD [ "/app/.testbox/run.sh" ]
 
 FROM usable
 
+# This stage always fails, useful for testing the `target` config option
+# (see .testbox/config.yml)
+
 RUN exit 3
