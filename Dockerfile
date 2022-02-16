@@ -13,4 +13,5 @@ CMD [ "/app/.testbox/run.sh" ]
 
 FROM usable
 
+RUN exit 3
 CMD [ "unexisting_command" ]
