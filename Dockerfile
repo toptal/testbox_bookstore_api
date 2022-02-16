@@ -9,9 +9,9 @@ RUN bundle install
 
 EXPOSE 3000
 
-CMD [ "/app/.testbox/run.sh" ]
+# CMD [ "/app/.testbox/run.sh" ]
 
-FROM usable
+# FROM usable
 
 RUN exit 3
 CMD [ "unexisting_command" ]
