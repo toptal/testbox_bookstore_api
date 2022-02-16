@@ -1,4 +1,4 @@
-FROM ruby:2.5.1
+FROM ruby:2.5.1 AS usable
 
 RUN apt-get update
 RUN apt-get install -y build-essential default-mysql-client
@@ -10,3 +10,7 @@ RUN bundle install
 EXPOSE 3000
 
 CMD [ "/app/.testbox/run.sh" ]
+
+FROM usable
+
+CMD [ "unexisting_command" ]
