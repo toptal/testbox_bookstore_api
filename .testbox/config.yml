@@ -1,5 +1,6 @@
 docker:
-  build: true
+  build:
+    target: usable
   workdir: /app
   ports:
   - "<%= ENV.fetch('RAILS_PORT', 3000)%>:3000"
