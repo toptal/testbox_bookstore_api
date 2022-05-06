@@ -1,7 +1,7 @@
 FROM ruby:2.6.5 as usable
 
 RUN apt-get update
-RUN apt-get install -y build-essential default-mysql-client
+RUN apt-get install -y build-essential default-mysql-client wait-for-it
 
 COPY . /app
 WORKDIR /app
