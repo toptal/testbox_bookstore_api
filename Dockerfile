@@ -1,12 +1,13 @@
 FROM ruby:2.6.5 as usable
 
-RUN apt-get update
-RUN apt-get install -y build-essential default-mysql-client
+RUN apt-get update && apt-get install --yes --no-install-recommends \
+  build-essential default-mysql-client wait-for-it
+
+RUN gem install bundler:2.3.10 --no-document
 
 COPY . /app
 WORKDIR /app
 
-RUN gem install bundler:2.3.10 --no-document
 RUN bundle install
 
 EXPOSE 3000

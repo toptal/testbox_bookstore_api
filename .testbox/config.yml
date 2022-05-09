@@ -4,6 +4,11 @@ docker:
   workdir: /app
   ports:
   - "<%= ENV.fetch('RAILS_PORT', 3000)%>:3000"
+  compose:
+    healthcheck:
+      test: curl -f http://localhost:3000/books
+      interval: 10s
+      retries: 30
 
 services:
   mysql:
