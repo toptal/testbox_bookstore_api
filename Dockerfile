@@ -1,7 +1,7 @@
 FROM ruby:2.6.5 as usable
 
 RUN apt-get update && apt-get install --yes --no-install-recommends \
-  build-essential default-mysql-client wait-for-it
+  build-essential default-mysql-client
 
 RUN gem install bundler:2.3.10 --no-document
 
