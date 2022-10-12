@@ -1,9 +1,9 @@
-FROM ruby:2.6.5 as usable
+FROM ruby:3.0.4 as usable
 
 RUN apt-get update && apt-get install --yes --no-install-recommends \
   build-essential default-mysql-client wait-for-it
 
-RUN gem install bundler:2.3.10 --no-document
+RUN gem install bundler:2.3.21 --no-document
 
 COPY . /app
 WORKDIR /app
