@@ -9,7 +9,9 @@ default: &default
   username: <%= ENV.fetch('MYSQL_USER') %>
   password: <%= ENV.fetch('MYSQL_PASSWORD') %>
   database: <%= ENV.fetch('MYSQL_DATABASE') %>
-  host: mysql
+  host: <%= ENV.fetch('MYSQL_HOST', 'mysql') %>
+  encoding: utf8mb4
+  charset: utf8mb4
 
 development:
   <<: *default
