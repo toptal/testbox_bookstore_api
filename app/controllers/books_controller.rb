@@ -1,5 +1,6 @@
 class BooksController < ApplicationController
   def index
+    puts "======= WE'RE ON A BRANCH, SIR"
     render json: Book.all
   end
 
