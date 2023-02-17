@@ -26,6 +26,8 @@ scripts:
 feature_flags:
   upcase_titles: false
 
+faketime: true
+
 patches:
   - name: experimental
     operations:
