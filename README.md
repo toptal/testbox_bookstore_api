@@ -1,5 +1,7 @@
 # TestboxBookstoreApi
 
+a dumb commit
+
 A dummy Rails app to act as a backend part of a demo web stack.
 
 ## How to test
